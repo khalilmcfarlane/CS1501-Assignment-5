@@ -75,8 +75,9 @@ public class AirlineSystem {
     while(fileScan.hasNext()){
       int from = fileScan.nextInt();
       int to = fileScan.nextInt();
-      int weight = fileScan.nextInt();
-      G.addEdge(new WeightedDirectedEdge(from-1, to-1, weight));
+      int distance_weight = fileScan.nextInt();
+      int price_weight = fileScan.nextInt();
+      G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight, price_weight));
       fileScan.nextLine();
     }
     fileScan.close();
@@ -94,7 +95,7 @@ public class AirlineSystem {
       for (int i = 0; i < G.v; i++) {
         System.out.print(cityNames[i] + ": ");
         for (WeightedDirectedEdge e : G.adj(i)) {
-          System.out.print(cityNames[e.to()] + "(" + e.weight() + ") ");
+          System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") ");
         }
         System.out.println();
       }
@@ -125,9 +126,10 @@ public class AirlineSystem {
         System.out.println("There is no route from " + cityNames[source]
                             + " to " + cityNames[destination]);
       } else {
-        
+
       }
   }
+}
   private void shortestHops() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -302,10 +304,10 @@ public class AirlineSystem {
       int current = source;
       while (nMarked < this.v) {
         for (WeightedDirectedEdge w : adj(current)) {
-          if (distTo[current]+w.weight() < distTo[w.to()]) {
+          if (distTo[current]+w.distance_weight() < distTo[w.to()]) {
 	      //TODO:update edgeTo and distTo
             edgeTo[w.to()] = current;
-            distTo[w.to()] = distTo[current] + w.weight;
+            distTo[w.to()] = distTo[current] + w.distance_weight;
 	      
           }
         }
@@ -342,14 +344,16 @@ public class AirlineSystem {
   private class WeightedDirectedEdge {
     private final int v;
     private final int w;
-    private int weight;
+    private int distance_weight;
+    private int price_weight;
     /**
     * Create a directed edge from v to w with given weight.
     */
-    public WeightedDirectedEdge(int v, int w, int weight) {
+    public WeightedDirectedEdge(int v, int w, int distance_weight, int price_weight) {
       this.v = v;
       this.w = w;
-      this.weight = weight;
+      this.distance_weight = distance_weight;
+      this.price_weight = price_weight;
     }
 
     public int from(){
@@ -360,8 +364,12 @@ public class AirlineSystem {
       return w;
     }
 
-    public int weight(){
-      return weight;
+    public int distance_weight(){
+      return distance_weight;
+    }
+
+    public int price_weight() {
+      return price_weight;
     }
   }
 }
