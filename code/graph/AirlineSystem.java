@@ -26,13 +26,13 @@ public class AirlineSystem {
         case 2:
           airline.printGraph();
           break;
-        case 3:
+        case 4:
           airline.shortestHops();
           break;
-        case 4:
+        case 5:
             airline.shortestDistance();
             break;
-        case 7:
+        case 9:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -48,13 +48,15 @@ public class AirlineSystem {
     System.out.println("Welcome to FifteenO'One Airlines!");
     System.out.println("1. Read data from a file.");
     System.out.println("2. Display all routes.");
-    System.out.println("3. Compute shortest path based on number of hops.");
-    System.out.println("4. Compute shortest path based on distance.");
-    System.out.println("5. Compute shortest path based on price.");
-    System.out.println("6. Compute all trips less than or equal to given price.");
-    System.out.println("7. Exit.");
+    System.out.println("3. Display all prices.");
+    System.out.println("4. Compute shortest path based on number of hops.");
+    System.out.println("5. Compute shortest path based on distance.");
+    System.out.println("6. Compute shortest path based on price.");
+    System.out.println("7. Compute all trips less than or equal to given price.");
+    System.out.println("8. Compute Minimum Spanning Tree.");
+    System.out.println("9. Exit.");
     System.out.println("*********************************");
-    System.out.print("Please choose a menu option (1-5): ");
+    System.out.print("Please choose a menu option (1-9): ");
 
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
@@ -101,6 +103,28 @@ public class AirlineSystem {
       }
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
+
+    }
+  }
+
+  //Simple method that prints out price of every flight
+  private void printPrice() {
+    if(G == null){
+      System.out.println("Please import a graph first (option 1).");
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
+    } else {
+      
+    }
+  }
+
+  //Algorithm that computes Minimum Spanning Tree using Prim's algorithm
+  private void computeMST() {
+    if(G == null){
+      System.out.println("Please import a graph first (option 1).");
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
+    } else {
 
     }
   }
