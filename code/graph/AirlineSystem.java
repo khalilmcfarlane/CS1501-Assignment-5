@@ -34,6 +34,7 @@ public class AirlineSystem {
             break;
         case 5:
           scan.close();
+          System.out.println("EXITING PROGRAM");
           System.exit(0);
           break;
         default:
@@ -49,9 +50,9 @@ public class AirlineSystem {
     System.out.println("2. Display all routes.");
     System.out.println("3. Compute shortest path based on number of hops.");
     System.out.println("4. Compute shortest path based on distance.");
-    System.out.println("4. Exit.");
+    System.out.println("5. Exit.");
     System.out.println("*********************************");
-    System.out.print("Please choose a menu option (1-4): ");
+    System.out.print("Please choose a menu option (1-5): ");
 
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
@@ -277,7 +278,7 @@ public class AirlineSystem {
         for (WeightedDirectedEdge w : adj(current)) {
           if (distTo[current]+w.weight() < distTo[w.to()]) {
 	      //TODO:update edgeTo and distTo
-            edge[w.to()] = current;
+            edgeTo[w.to()] = current;
             distTo[w.to()] = distTo[current] + w.weight;
 	      
           }
@@ -338,4 +339,3 @@ public class AirlineSystem {
     }
   }
 }
-
