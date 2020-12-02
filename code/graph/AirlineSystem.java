@@ -114,7 +114,7 @@ public class AirlineSystem {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
-      
+
     }
   }
 
@@ -128,6 +128,7 @@ public class AirlineSystem {
 
     }
   }
+
 
   // lowestPrice() method that computes path with lowest price
   private void lowestPrice() {
@@ -309,6 +310,10 @@ public class AirlineSystem {
           }
         }
       }
+    }
+
+    public void PrimMST(int source) {
+      
     }
 
     public void dijkstras(int source, int destination) {
