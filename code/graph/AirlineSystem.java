@@ -32,7 +32,7 @@ public class AirlineSystem {
         case 4:
             airline.shortestDistance();
             break;
-        case 5:
+        case 7:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -50,7 +50,9 @@ public class AirlineSystem {
     System.out.println("2. Display all routes.");
     System.out.println("3. Compute shortest path based on number of hops.");
     System.out.println("4. Compute shortest path based on distance.");
-    System.out.println("5. Exit.");
+    System.out.println("5. Compute shortest path based on price.");
+    System.out.println("6. Compute all trips less than or equal to given price.");
+    System.out.println("7. Exit.");
     System.out.println("*********************************");
     System.out.print("Please choose a menu option (1-5): ");
 
