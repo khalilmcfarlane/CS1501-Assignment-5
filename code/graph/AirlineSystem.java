@@ -106,7 +106,27 @@ public class AirlineSystem {
 
   // lowestPrice() method that computes path with lowest price
   private void lowestPrice() {
-    
+    if(G == null){
+      System.out.println("Please import a graph first (option 1).");
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
+    } else {
+      for(int i=0; i<cityNames.length; i++){
+        System.out.println(i+1 + ": " + cityNames[i]);
+      }
+      System.out.print("Please enter source city (1-" + cityNames.length + "): ");
+      int source = Integer.parseInt(scan.nextLine());
+      System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
+      int destination = Integer.parseInt(scan.nextLine());
+      source--;
+      destination--;
+      G.dijkstras(source, destination);
+      if(!G.marked[destination]){
+        System.out.println("There is no route from " + cityNames[source]
+                            + " to " + cityNames[destination]);
+      } else {
+        
+      }
   }
   private void shortestHops() {
     if(G == null){
