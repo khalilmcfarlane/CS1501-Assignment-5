@@ -313,7 +313,17 @@ public class AirlineSystem {
     }
 
     public void PrimMST(int source) {
-      
+      marked = new boolean[this.v];
+      distTo = new int[this.v];
+      edgeTo = new int[this.v];
+
+      for (int vert = 0; vert < this.v; vert++) distTo[vert] = INFINITY;
+
+        for (int vert = 0; vert < this.v; vert++)      // run from each vertex to find
+            if (!marked[vert]) {
+              
+            } 
+
     }
 
     public void dijkstras(int source, int destination) {
