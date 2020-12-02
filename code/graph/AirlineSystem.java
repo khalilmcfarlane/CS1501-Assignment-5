@@ -76,10 +76,10 @@ public class AirlineSystem {
       int from = fileScan.nextInt();
       int to = fileScan.nextInt();
       int distance_weight = fileScan.nextInt();
-      int price_weight = fileScan.nextInt();
-      G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight, price_weight));
+      //double price_weight = fileScan.nextDouble();
+      G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight));
       fileScan.nextLine();
-    }
+      }
     fileScan.close();
     System.out.println("Data imported successfully.");
     System.out.print("Please press ENTER to continue ...");
@@ -345,11 +345,11 @@ public class AirlineSystem {
     private final int v;
     private final int w;
     private int distance_weight;
-    private int price_weight;
+    private double price_weight;
     /**
     * Create a directed edge from v to w with given weight.
     */
-    public WeightedDirectedEdge(int v, int w, int distance_weight, int price_weight) {
+    public WeightedDirectedEdge(int v, int w, int distance_weight) {
       this.v = v;
       this.w = w;
       this.distance_weight = distance_weight;
@@ -368,7 +368,7 @@ public class AirlineSystem {
       return distance_weight;
     }
 
-    public int price_weight() {
+    public double price_weight() {
       return price_weight;
     }
   }
