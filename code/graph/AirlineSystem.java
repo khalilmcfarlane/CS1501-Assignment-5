@@ -36,11 +36,11 @@ public class AirlineSystem {
         case 5:
           airline.shortestDistance();
           break;
-        case 8:
-          airline.printMST();
-          break;
         case 6:
           airline.lowestPrice();
+          break;
+        case 8:
+          airline.printMST();
           break;
         case 9:
           scan.close();
@@ -167,7 +167,21 @@ public class AirlineSystem {
 
     }
   
-
+  // Compute all trips less than or equal to given amount
+  private void trips() {
+    if(G == null){
+      System.out.println("Please import a graph first (option 1).");
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
+    } else {
+      System.out.println("\nAll Trips under Provided Price");
+      System.out.println("-----------------------------");
+  }
+  System.out.println("Enter the highest price you can pay!");
+  int highest_price = Integer.parseInt(scan.nextLine());
+  System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
+  System.out.println("-----------------------------");
+}
 
   // lowestPrice() method that computes path with lowest price using dijkstras algo
   private void lowestPrice() {
