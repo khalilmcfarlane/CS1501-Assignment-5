@@ -325,7 +325,6 @@ public class AirlineSystem {
       }
     }
 
-
     //Computes and prints out MST
     public void PrimMST() {
       marked = new boolean[this.v];
