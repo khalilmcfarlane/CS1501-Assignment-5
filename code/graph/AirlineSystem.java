@@ -33,11 +33,14 @@ public class AirlineSystem {
           airline.shortestHops();
           break;
         case 5:
-            airline.shortestDistance();
-            break;
+          airline.shortestDistance();
+          break;
         case 8:
           airline.printMST();
-            break;
+          break;
+        case 6:
+          airline.lowestPrice();
+          break;
         case 9:
           scan.close();
           System.out.println("EXITING PROGRAM");
@@ -50,6 +53,13 @@ public class AirlineSystem {
   }
 
   private int menu(){
+    System.out.printf("\n0====================================0\n"
+				+ "|   FifteenO'One                     |\n"
+				+ "|               Airlines   __        |\n"
+				+ "|                __________/ F       |\n"
+				+ "|              c'____---__=_/        |\n"
+				+ "|________________o_____o_____________|\n"
+				+ "0====================================0\n\n");
     System.out.println("*********************************");
     System.out.println("Welcome to FifteenO'One Airlines!");
     System.out.println("1. Read data from a file.");
@@ -162,6 +172,9 @@ public class AirlineSystem {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
+      System.out.println("\nLowest Price Cost");
+      System.out.println("-----------------------------");
+      //double price = 0.0;
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
@@ -171,13 +184,29 @@ public class AirlineSystem {
       int destination = Integer.parseInt(scan.nextLine());
       source--;
       destination--;
-      G.dijkstras(source, destination);
+      G.priceDijkstras(source, destination);
       if(!G.marked[destination]){
         System.out.println("There is no route from " + cityNames[source]
                             + " to " + cityNames[destination]);
       } else {
-
+        Stack<Integer> path = new Stack<>();
+        for (int x = destination; x != source; x = G.edgeTo[x]) {
+            path.push(x);
       }
+      System.out.print("The lowest price from " + cityNames[source] +
+      " to " + cityNames[destination] + " is $" +
+      G.distTo[destination] + ".\n");
+
+      int prevVertex = source;
+      System.out.print(cityNames[source] + " ");
+      while(!path.empty()){
+      int v = path.pop();
+      System.out.print("to " + cityNames[v] + ": $" + (G.distTo[v] - G.distTo[prevVertex]) + " "
+             + " ");
+      prevVertex = v;
+      }
+      System.out.println();
+    }
   }
 }
   private void shortestHops() {
@@ -406,8 +435,52 @@ public class AirlineSystem {
       }
   }
 
-  
+  //Dijkstras for price
+    public void priceDijkstras(int source, int destination) {
+      marked = new boolean[this.v];
+      distTo = new int[this.v];
+      edgeTo = new int[this.v];
 
+
+      for (int i = 0; i < v; i++){
+        distTo[i] = INFINITY;
+        marked[i] = false;
+      }
+      distTo[source] = 0;
+      marked[source] = true;
+      int nMarked = 1;
+
+      int current = source;
+      while (nMarked < this.v) {
+        for (WeightedDirectedEdge w : adj(current)) {
+          if (distTo[current]+w.price_weight() < distTo[w.to()]) {
+            edgeTo[w.to()] = current;
+            distTo[w.to()] = (int) (distTo[current] + w.price_weight);
+	      
+          }
+        }
+        //Find the vertex with minimim path distance
+        //This can be done more effiently using a priority queue!
+        int min = INFINITY;
+        current = -1;
+
+        for(int i=0; i<distTo.length; i++){
+          if(marked[i])
+            continue;
+          if(distTo[i] < min){
+            min = distTo[i];
+            current = i;
+          }
+        }
+        if(current > 0) {
+            marked[current] = true;
+            nMarked++;
+        } else {
+          break;
+        }
+
+      }
+  }
 
     public void dijkstras(int source, int destination) {
       marked = new boolean[this.v];
