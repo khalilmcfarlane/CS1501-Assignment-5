@@ -26,6 +26,9 @@ public class AirlineSystem {
         case 2:
           airline.printGraph();
           break;
+        case 3:
+          airline.printPrice();
+          break;
         case 4:
           airline.shortestHops();
           break;
@@ -34,6 +37,7 @@ public class AirlineSystem {
             break;
         case 8:
           airline.printMST();
+            break;
         case 9:
           scan.close();
           System.out.println("EXITING PROGRAM");
@@ -76,13 +80,13 @@ public class AirlineSystem {
       cityNames[i] = fileScan.nextLine();
     }
 
-    while(fileScan.hasNext()){
+    while(fileScan.hasNextLine()){
       int from = fileScan.nextInt();
       int to = fileScan.nextInt();
       int distance_weight = fileScan.nextInt();
-      //double price_weight = fileScan.nextDouble();
-      G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight));
-      fileScan.nextLine();
+      double price_weight = fileScan.nextDouble();
+      G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight, price_weight));
+      //fileScan.nextLine();
       }
     fileScan.close();
     System.out.println("Data imported successfully.");
@@ -99,7 +103,7 @@ public class AirlineSystem {
       for (int i = 0; i < G.v; i++) {
         System.out.print(cityNames[i] + ": ");
         for (WeightedDirectedEdge e : G.adj(i)) {
-          System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") ");
+          System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") " + "Price: $" + e.price_weight() + " ");
         }
         System.out.println();
       }
@@ -116,6 +120,15 @@ public class AirlineSystem {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
+      for (int i = 0; i < G.v; i++) {
+        System.out.print(cityNames[i] + ": ");
+        for (WeightedDirectedEdge e : G.adj(i)) {
+          System.out.print(cityNames[e.to()] + "(" + e.price_weight() + ") ");
+        }
+        System.out.println();
+      }
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
 
     }
   }
@@ -142,7 +155,7 @@ public class AirlineSystem {
   
 
 
-  // lowestPrice() method that computes path with lowest price
+  // lowestPrice() method that computes path with lowest price using dijkstras algo
   private void lowestPrice() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -458,7 +471,7 @@ public class AirlineSystem {
     /**
     * Create a directed edge from v to w with given weight.
     */
-    public WeightedDirectedEdge(int v, int w, int distance_weight) {
+    public WeightedDirectedEdge(int v, int w, int distance_weight, double price_weight) {
       this.v = v;
       this.w = w;
       this.distance_weight = distance_weight;
