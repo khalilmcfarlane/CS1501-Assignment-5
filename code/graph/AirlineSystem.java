@@ -118,7 +118,7 @@ public class AirlineSystem {
     }
   }
 
-  //Algorithm that computes Minimum Spanning Tree using Prim's algorithm
+  //Algorithm that prints Minimum Spanning Tree using Prim's algorithm
   private void printMST() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -249,6 +249,7 @@ public class AirlineSystem {
     private boolean[] marked;  // marked[v] = is there an s-v path
     private int[] edgeTo;      // edgeTo[v] = previous edge on shortest s-v path
     private int[] distTo;      // distTo[v] = number of edges shortest s-v path
+    private IndexMinPQ<Integer> pq;
 
 
     /**
@@ -316,30 +317,50 @@ public class AirlineSystem {
       marked = new boolean[this.v];
       distTo = new int[this.v];
       edgeTo = new int[this.v];
-
+      pq = new IndexMinPQ<Integer>(this.v);
       for (int vert = 0; vert < this.v; vert++) {
         distTo[vert] = INFINITY;
         marked[vert] = false;
       }
       //distTo[source] = 0;
       //marked[source] = true;
-      int nMarked = 1;
-      int curr = source;
+      //int nMarked = 1;
+      //int curr = source;
 
         for (int vert = 0; vert < this.v; vert++) {     // run from each vertex to find
             if (!marked[vert]) {
               distTo[source] = 0;
-              while(nMarked < this.v) {
-                marked[source] = true;
-                for(WeightedDirectedEdge w : adj(curr)) {
-                    int W = 
-                }
-              }
-
+              int V = pq.delMin();
+              scan(V);
             } 
         }
-
     }
+
+    private void scan(int v) {
+      marked[v] = true;
+      int current = v;
+      for (WeightedDirectedEdge e : adj(current)) {
+          int w = e.other(v);
+          if (marked[w]) 
+          {
+            continue;         // v-w is obsolete edge
+          }
+          if (e.distance_weight() < distTo[w]) {
+              distTo[w] = e.distance_weight();
+              //CHECK THIS EVENTUALLY
+              edgeTo[w] = e.v;
+              if (pq.contains(w)) 
+              {
+                  pq.change(w, distTo[w]);
+              }
+              else              
+              {
+                  pq.insert(w, distTo[w]);
+              }
+          }
+      }
+  }
+
 
     public void dijkstras(int source, int destination) {
       marked = new boolean[this.v];
@@ -425,5 +446,11 @@ public class AirlineSystem {
     public double price_weight() {
       return price_weight;
     }
+
+    public int other(int vertex) {
+      if      (vertex == v) return w;
+      else if (vertex == w) return v;
+      else throw new RuntimeException("Illegal endpoint");
+  }
   }
 }
