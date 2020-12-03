@@ -10,7 +10,8 @@ public class AirlineSystem {
   private Digraph G = null;
   private static Scanner scan = null;
   private static final int INFINITY = Integer.MAX_VALUE;
-
+  private Map<String, Integer> locMap = new HashMap<>(); // HashMap for reading city inputs as names
+                                                                // Associates names with integer
 
   /**
   * Test client.
@@ -53,13 +54,15 @@ public class AirlineSystem {
   }
 
   private int menu(){
+    /*
     System.out.printf("\n0====================================0\n"
 				+ "|   FifteenO'One                     |\n"
 				+ "|               Airlines   __        |\n"
 				+ "|                __________/ F       |\n"
 				+ "|              c'____---__=_/        |\n"
 				+ "|________________o_____o_____________|\n"
-				+ "0====================================0\n\n");
+        + "0====================================0\n\n");
+        */
     System.out.println("*********************************");
     System.out.println("Welcome to FifteenO'One Airlines!");
     System.out.println("1. Read data from a file.");
@@ -88,6 +91,7 @@ public class AirlineSystem {
     cityNames = new String[v];
     for(int i=0; i<v; i++){
       cityNames[i] = fileScan.nextLine();
+      //locMap.put(" ", i+1);
     }
 
     while(fileScan.hasNextLine()){
@@ -178,10 +182,25 @@ public class AirlineSystem {
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
-      System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-      int source = Integer.parseInt(scan.nextLine());
-      System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-      int destination = Integer.parseInt(scan.nextLine());
+      System.out.print("Please enter source city's name: ");
+      String sourceStr = scan.nextLine();
+      // I used a hashmap to associate the cities with numbers
+       // Not the most efficent thing but it gets the job done
+       for(int i = 0; i < cityNames.length; i++) {
+         if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+           locMap.put(sourceStr, i+1);
+         }
+       }
+       int source = locMap.get(sourceStr);
+
+       System.out.print("Please enter destination city's name: ");
+       String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
       source--;
       destination--;
       G.priceDijkstras(source, destination);
@@ -218,10 +237,25 @@ public class AirlineSystem {
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
-      System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-      int source = Integer.parseInt(scan.nextLine());
-      System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-      int destination = Integer.parseInt(scan.nextLine());
+      System.out.print("Please enter source city's name: ");
+      String sourceStr = scan.nextLine();
+       // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+
+       System.out.print("Please enter destination city's name: ");
+       String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
       source--;
       destination--;
       G.bfs(source);
@@ -255,10 +289,27 @@ public class AirlineSystem {
         for(int i=0; i<cityNames.length; i++){
           System.out.println(i+1 + ": " + cityNames[i]);
         }
-        System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-        int source = Integer.parseInt(scan.nextLine());
-        System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-        int destination = Integer.parseInt(scan.nextLine());
+
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+
         source--;
         destination--;
         G.dijkstras(source, destination);
