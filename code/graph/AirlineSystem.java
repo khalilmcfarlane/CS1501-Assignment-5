@@ -32,6 +32,8 @@ public class AirlineSystem {
         case 5:
             airline.shortestDistance();
             break;
+        case 8:
+          airline.printMST();
         case 9:
           scan.close();
           System.out.println("EXITING PROGRAM");
@@ -118,6 +120,7 @@ public class AirlineSystem {
     }
   }
 
+  
   //Algorithm that prints Minimum Spanning Tree using Prim's algorithm
   private void printMST() {
     if(G == null){
@@ -125,9 +128,18 @@ public class AirlineSystem {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
+      System.out.println("\nMINIMUM SPANNING TREE");
+      System.out.println("-----------------------------");
+      System.out.print("The edges in the MST based on distance are as followed:\n");
+      //Digraph Gg  = G.PrimMST();
+      G.PrimMST();
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
+        //G.PrimMST(source);
+      }
 
     }
-  }
+  
 
 
   // lowestPrice() method that computes path with lowest price
@@ -313,7 +325,9 @@ public class AirlineSystem {
       }
     }
 
-    public void PrimMST(int source) {
+
+    //Computes and prints out MST
+    public void PrimMST() {
       marked = new boolean[this.v];
       distTo = new int[this.v];
       edgeTo = new int[this.v];
@@ -324,16 +338,35 @@ public class AirlineSystem {
       }
       //distTo[source] = 0;
       //marked[source] = true;
-      //int nMarked = 1;
-      //int curr = source;
+      int nMarked = 1;
 
         for (int vert = 0; vert < this.v; vert++) {     // run from each vertex to find
+          int curr = vert;
             if (!marked[vert]) {
-              distTo[source] = 0;
-              int V = pq.delMin();
-              scan(V);
-            } 
+              distTo[vert] = 0;
+              pq.insert(vert, distTo[vert]);
+              while(!pq.isEmpty()) {
+                int V = pq.delMin();
+                scan(V);
+              }
+
+              // Check for disconnected graph
+              if(curr > 0) {
+                marked[curr] = true;
+                nMarked++;
+            } else {
+              break;
+            }
+          } 
         }
+
+        for (int i = 0; i < G.v; i++) {
+        for(WeightedDirectedEdge e : G.adj(i)) {
+            System.out.printf("%s,%s : %d\n", cityNames[e.from()], cityNames[e.to()],
+                e.distance_weight());
+        }
+        //System.out.println();
+      }
     }
 
     private void scan(int v) {
@@ -360,6 +393,8 @@ public class AirlineSystem {
           }
       }
   }
+
+  
 
 
     public void dijkstras(int source, int destination) {
