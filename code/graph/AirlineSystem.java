@@ -119,7 +119,7 @@ public class AirlineSystem {
   }
 
   //Algorithm that computes Minimum Spanning Tree using Prim's algorithm
-  private void computeMST() {
+  private void printMST() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
       System.out.print("Please press ENTER to continue ...");
@@ -317,12 +317,27 @@ public class AirlineSystem {
       distTo = new int[this.v];
       edgeTo = new int[this.v];
 
-      for (int vert = 0; vert < this.v; vert++) distTo[vert] = INFINITY;
+      for (int vert = 0; vert < this.v; vert++) {
+        distTo[vert] = INFINITY;
+        marked[vert] = false;
+      }
+      //distTo[source] = 0;
+      //marked[source] = true;
+      int nMarked = 1;
+      int curr = source;
 
-        for (int vert = 0; vert < this.v; vert++)      // run from each vertex to find
+        for (int vert = 0; vert < this.v; vert++) {     // run from each vertex to find
             if (!marked[vert]) {
-              
+              distTo[source] = 0;
+              while(nMarked < this.v) {
+                marked[source] = true;
+                for(WeightedDirectedEdge w : adj(curr)) {
+                    int W = 
+                }
+              }
+
             } 
+        }
 
     }
 
