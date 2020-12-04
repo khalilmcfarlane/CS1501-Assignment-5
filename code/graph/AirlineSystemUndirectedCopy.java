@@ -5,7 +5,7 @@
 import java.util.*;
 import java.io.*;
 
-public class AirlineSystemUndirected {
+public class AirlineSystemUndirectedCopy {
   private String [] cityNames = null;
   private EdgeWeightedGraph G = null;
   private static Scanner scan = null;
@@ -16,7 +16,7 @@ public class AirlineSystemUndirected {
   * Test client.
   */
   public static void main(String[] args) throws IOException {
-    AirlineSystemUndirected airline = new AirlineSystemUndirected();
+    AirlineSystemUndirectedCopy airline = new AirlineSystemUndirectedCopy();
     scan = new Scanner(System.in);
     while(true){
       switch(airline.menu()){
