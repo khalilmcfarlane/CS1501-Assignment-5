@@ -43,6 +43,9 @@ public class AirlineSystem {
           airline.printMST();
           break;
         case 9:
+          airline.createRoute();
+          break;
+        case 11:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -73,9 +76,11 @@ public class AirlineSystem {
     System.out.println("6. Compute shortest path based on price.");
     System.out.println("7. Compute all trips less than or equal to given price.");
     System.out.println("8. Compute Minimum Spanning Tree.");
-    System.out.println("9. Exit.");
+    System.out.println("9. Add a route. ");
+    System.out.println("10. Delete a route. ");
+    System.out.println("11. Exit.");
     System.out.println("*********************************");
-    System.out.print("Please choose a menu option (1-9): ");
+    System.out.print("Please choose a menu option (1-11): ");
 
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
@@ -137,7 +142,7 @@ public class AirlineSystem {
       for (int i = 0; i < G.v; i++) {
         System.out.print(cityNames[i] + ": ");
         for (WeightedDirectedEdge e : G.adj(i)) {
-          System.out.print(cityNames[e.to()] + "(" + e.price_weight() + ") ");
+          System.out.print(cityNames[e.to()] + "($" + e.price_weight() + ") ");
         }
         System.out.println();
       }
@@ -145,6 +150,11 @@ public class AirlineSystem {
       scan.nextLine();
 
     }
+  }
+
+  // Just calls addRoute, which creates a new route
+  private void createRoute() {
+    G.addRoute();
   }
 
   
@@ -168,21 +178,7 @@ public class AirlineSystem {
     }
   
   // Compute all trips less than or equal to given amount
-  private void trips() {
-    if(G == null){
-      System.out.println("Please import a graph first (option 1).");
-      System.out.print("Please press ENTER to continue ...");
-      scan.nextLine();
-    } else {
-      System.out.println("\nAll Trips under Provided Price");
-      System.out.println("-----------------------------");
-  }
-  System.out.println("Enter the highest price you can pay!");
-  int highest_price = Integer.parseInt(scan.nextLine());
-  System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
-  System.out.println("-----------------------------");
-}
-
+  
   // lowestPrice() method that computes path with lowest price using dijkstras algo
   private void lowestPrice() {
     if(G == null){
@@ -355,6 +351,8 @@ public class AirlineSystem {
       }
   }
 
+  
+
   /**
   *  The <tt>Digraph</tt> class represents an directed graph of vertices
   *  named 0 through v-1. It supports the following operations: add an edge to
@@ -405,6 +403,119 @@ public class AirlineSystem {
       return adj[v];
     }
 
+    public void addRoute() {
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("ADD A NEW ROUTE TO SCHEDULE");
+        for(int i=0; i<cityNames.length; i++){
+          System.out.println(i+1 + ": " + cityNames[i]);
+        }
+  
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+  
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+        System.out.println("Enter a distance");
+        int distance = Integer.parseInt(scan.nextLine());
+        System.out.println("Enter a price");
+        double price = Double.parseDouble(scan.nextLine());
+        for (int i = 0; i < G.v; i++) {
+        for (WeightedDirectedEdge e : G.adj(i)) {
+          if (e.to() == destination) {
+            e.distance_weight(distance);
+            e.price_weight(price);
+            // Find and update reverse of the edge
+            for (WeightedDirectedEdge e2 : G.adj(e.to())) {
+              if (e.to() == source) {
+                e2.distance_weight(distance);
+                e2.price_weight(price);
+              }
+            }
+          }
+        }
+      }
+        //
+        G.addEdge(new WeightedDirectedEdge(source, destination, distance, price));
+        //adj[source].add(new WeightedDirectedEdge(source, destination, distance, price));
+        //adj[destination].add(new WeightedDirectedEdge(destination, source, distance, price));
+      }
+    }
+
+    private void trips() {
+      String costStr;
+      double highest_price;
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("\nAll Trips under Provided Price");
+        System.out.println("-----------------------------");
+    }
+    System.out.println("Enter the highest price you can pay!");
+    costStr = scan.nextLine();
+    highest_price = Double.parseDouble(costStr);
+    if(highest_price <= 0) {
+      System.out.println("That's way too small a number for input! Try again.");
+      costStr = scan.nextLine();
+      highest_price = Double.parseDouble(costStr);
+    }
+    System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
+    System.out.println("-----------------------------");
+
+    
+    /*
+    Stack<WeightedDirectedEdge> e = new Stack<>();
+      for (int V = 0; V < v; V++) {
+        marked = new boolean[v];
+        marked[V] = true;
+        trips(e, highest_price, V);
+      }
+      */
+  }
+  /*
+  private void trips(Stack<WeightedDirectedEdge> e, int highest_price, int V) {
+    for (WeightedDirectedEdge s : adj[v]) {
+			// Push node onto Stack
+			e.push(s);
+
+			// Check for exceeding limit or formation of cycle
+			if (s.price_weight() > highest_price) {
+				e.pop();
+				continue;
+			}
+			//marked[e.w()] = true;
+			System.out.printf("\nCost: %d Path (reversed): ",  s.price_weight());
+			System.out.printf("%s ", cityNames[e]);
+			for (EdgeNode n : s)
+				System.out.printf("%d %s ", n.price(), citiesNum.get(n.v()));
+			System.out.println();
+
+			costSearch(s, limit, total + e.price(), e.w());
+
+			marked[e.w()] = false;
+			s.pop();
+		}
+  }
+  */
     public void bfs(int source) {
       marked = new boolean[this.v];
       distTo = new int[this.e];
@@ -624,10 +735,18 @@ public class AirlineSystem {
       return w;
     }
 
-    public int distance_weight(){
+    public int distance_weight(int distance_weight) {
+      return distance_weight;
+    }
+    // parameter-less
+    public int distance_weight() {
       return distance_weight;
     }
 
+    public double price_weight(double price_weight) {
+      return price_weight;
+    }
+    // parameter-less
     public double price_weight() {
       return price_weight;
     }
