@@ -10,6 +10,8 @@ public class AirlineSystemUndirected {
   private EdgeWeightedGraph G = null;
   private static Scanner scan = null;
   private static final int INFINITY = Integer.MAX_VALUE;
+  private Map<String, Integer> locMap = new HashMap<>(); // HashMap for reading city inputs as names
+                                                                // Associates names with integer
 
 
   /**
@@ -30,10 +32,11 @@ public class AirlineSystemUndirected {
           airline.shortestHops();
           break;
         case 5:
-            airline.shortestDistance();
-            break;
+          airline.shortestDistance();
+          break;
         case 8:
           airline.printMST();
+          break;
         case 9:
           scan.close();
           System.out.println("EXITING PROGRAM");
@@ -350,8 +353,9 @@ public class AirlineSystemUndirected {
               distTo[vert] = 0;
               pq.insert(vert, distTo[vert]);
               while(!pq.isEmpty()) {
-                int V = pq.delMin();
-                scan(V);
+                visit(G, pq.delMin());
+                //int V = pq.delMin();
+               // scan(V);
               }
 
               // Check for disconnected graph
@@ -363,16 +367,37 @@ public class AirlineSystemUndirected {
             }
           } 
         }
-
-        for (int i = 0; i < G.v; i++) {
+        for (int i = 1; i < G.v; i++) {
         for(WeightedUndirectedEdge e : G.adj(i)) {
             System.out.printf("%s,%s : %d\n", cityNames[e.from()], cityNames[e.to()],
                 e.distance_weight());
+               break;
         }
         //System.out.println();
       }
     }
 
+    //Prim's find algorithm from given source code
+    private void visit(EdgeWeightedGraph G, int v) {
+      marked[v] = true;
+      for(WeightedUndirectedEdge e : G.adj(v)) {
+        int w = e.other(v);
+        if(marked[w]) continue;
+        if(e.distance_weight() < distTo[w]) {
+          edgeTo[w] = e.v;
+          distTo[w] = e.distance_weight();
+          if (pq.contains(w)) 
+          {
+              pq.change(w, distTo[w]);
+          }
+          else              
+          {
+              pq.insert(w, distTo[w]);
+          }
+        }
+      }
+
+    }
     private void scan(int v) {
       marked[v] = true;
       int current = v;
@@ -503,8 +528,8 @@ public class AirlineSystemUndirected {
      * Compare edges by weight. Adapted for AirlineSystem
      */
     public int compareTo(WeightedUndirectedEdge that) {
-      if      (this.price_weight() < that.price_weight()) return -1;
-      else if (this.price_weight() > that.price_weight()) return +1;
+      if      (this.distance_weight() < that.distance_weight()) return -1;
+      else if (this.distance_weight() > that.distance_weight()) return +1;
       else                                    return  0;
   }
 
