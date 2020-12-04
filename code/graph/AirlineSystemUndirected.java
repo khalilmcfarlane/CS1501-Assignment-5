@@ -28,16 +28,25 @@ public class AirlineSystemUndirected {
         case 2:
           airline.printGraph();
           break;
+        case 3:
+          airline.printPrice();
+          break;
         case 4:
           airline.shortestHops();
           break;
         case 5:
           airline.shortestDistance();
           break;
+        case 6:
+          airline.lowestPrice();
+          break;
         case 8:
           airline.printMST();
           break;
         case 9:
+          airline.createRoute();
+          break;
+        case 11:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -49,20 +58,30 @@ public class AirlineSystemUndirected {
   }
 
   private int menu(){
-    System.out.println("*********************************");
-    System.out.println("Welcome to FifteenO'One Airlines!");
-    System.out.println("1. Read data from a file.");
-    System.out.println("2. Display all routes.");
-    System.out.println("3. Display all prices.");
-    System.out.println("4. Compute shortest path based on number of hops.");
-    System.out.println("5. Compute shortest path based on distance.");
-    System.out.println("6. Compute shortest path based on price.");
-    System.out.println("7. Compute all trips less than or equal to given price.");
-    System.out.println("8. Compute Minimum Spanning Tree.");
-    System.out.println("9. Exit.");
-    System.out.println("*********************************");
-    System.out.print("Please choose a menu option (1-9): ");
-
+     /*
+    System.out.printf("\n0====================================0\n"
+				+ "|   FifteenO'One                     |\n"
+				+ "|               Airlines   __        |\n"
+				+ "|                __________/ F       |\n"
+				+ "|              c'____---__=_/        |\n"
+				+ "|________________o_____o_____________|\n"
+        + "0====================================0\n\n");
+        */
+        System.out.println("*********************************");
+        System.out.println("Welcome to FifteenO'One Airlines!");
+        System.out.println("1. Read data from a file.");
+        System.out.println("2. Display all routes.");
+        System.out.println("3. Display all prices.");
+        System.out.println("4. Compute shortest path based on number of hops.");
+        System.out.println("5. Compute shortest path based on distance.");
+        System.out.println("6. Compute shortest path based on price.");
+        System.out.println("7. Compute all trips less than or equal to given price.");
+        System.out.println("8. Compute Minimum Spanning Tree.");
+        System.out.println("9. Add a route. ");
+        System.out.println("10. Delete a route. ");
+        System.out.println("11. Exit.");
+        System.out.println("*********************************");
+        System.out.print("Please choose a menu option (1-11): ");
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
   }
@@ -83,10 +102,10 @@ public class AirlineSystemUndirected {
       int from = fileScan.nextInt();
       int to = fileScan.nextInt();
       int distance_weight = fileScan.nextInt();
-      //double price_weight = fileScan.nextDouble();
-      G.addEdge(new WeightedUndirectedEdge(from-1, to-1, distance_weight));
-      G.addEdge(new WeightedUndirectedEdge(to-1, from-1, distance_weight));
-      fileScan.nextLine();
+      double price_weight = fileScan.nextDouble();
+      G.addEdge(new WeightedUndirectedEdge(from-1, to-1, distance_weight, price_weight));
+      G.addEdge(new WeightedUndirectedEdge(to-1, from-1, distance_weight, price_weight));
+      //fileScan.nextLine();
       }
     fileScan.close();
     System.out.println("Data imported successfully.");
@@ -104,7 +123,7 @@ public class AirlineSystemUndirected {
         System.out.print(cityNames[i] + ": ");
         for (WeightedUndirectedEdge e : G.adj(i)) {
           if(!cityNames[e.to()].equalsIgnoreCase(cityNames[i])) {
-          System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") ");
+            System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") " + "Price: $" + e.price_weight() + " ");
           }
         }
         System.out.println();
@@ -122,8 +141,21 @@ public class AirlineSystemUndirected {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
-
+      for (int i = 0; i < G.v; i++) {
+        System.out.print(cityNames[i] + ": ");
+        for (WeightedUndirectedEdge e : G.adj(i)) {
+          System.out.print(cityNames[e.to()] + "($" + e.price_weight() + ") ");
+        }
+        System.out.println();
+      }
+      System.out.print("Please press ENTER to continue ...");
+      scan.nextLine();
     }
+  }
+
+  // Just calls addRoute, which creates a new route
+  private void createRoute() {
+    G.addRoute();
   }
 
   
@@ -155,24 +187,59 @@ public class AirlineSystemUndirected {
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
     } else {
+      System.out.println("\nLowest Price Cost");
+      System.out.println("-----------------------------");
+      //double price = 0.0;
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
-      System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-      int source = Integer.parseInt(scan.nextLine());
-      System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-      int destination = Integer.parseInt(scan.nextLine());
+      System.out.print("Please enter source city's name: ");
+      String sourceStr = scan.nextLine();
+      // I used a hashmap to associate the cities with numbers
+       // Not the most efficent thing but it gets the job done
+       for(int i = 0; i < cityNames.length; i++) {
+         if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+           locMap.put(sourceStr, i+1);
+         }
+       }
+       int source = locMap.get(sourceStr);
+
+       System.out.print("Please enter destination city's name: ");
+       String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
       source--;
       destination--;
-      G.dijkstras(source, destination);
+      G.priceDijkstras(source, destination);
       if(!G.marked[destination]){
         System.out.println("There is no route from " + cityNames[source]
                             + " to " + cityNames[destination]);
       } else {
-
+        Stack<Integer> path = new Stack<>();
+        for (int x = destination; x != source; x = G.edgeTo[x]) {
+            path.push(x);
       }
+      System.out.print("The lowest price from " + cityNames[source] +
+      " to " + cityNames[destination] + " is $" +
+      G.distTo[destination] + ".\n");
+
+      int prevVertex = source;
+      System.out.print(cityNames[source] + " ");
+      while(!path.empty()){
+      int v = path.pop();
+      System.out.print("to " + cityNames[v] + ": $" + (G.distTo[v] - G.distTo[prevVertex]) + " "
+             + " ");
+      prevVertex = v;
+      }
+      System.out.println();
+    }
   }
 }
+
   private void shortestHops() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -182,10 +249,25 @@ public class AirlineSystemUndirected {
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
-      System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-      int source = Integer.parseInt(scan.nextLine());
-      System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-      int destination = Integer.parseInt(scan.nextLine());
+      System.out.print("Please enter source city's name: ");
+      String sourceStr = scan.nextLine();
+       // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+
+       System.out.print("Please enter destination city's name: ");
+       String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
       source--;
       destination--;
       G.bfs(source);
@@ -219,10 +301,27 @@ public class AirlineSystemUndirected {
         for(int i=0; i<cityNames.length; i++){
           System.out.println(i+1 + ": " + cityNames[i]);
         }
-        System.out.print("Please enter source city (1-" + cityNames.length + "): ");
-        int source = Integer.parseInt(scan.nextLine());
-        System.out.print("Please enter destination city (1-" + cityNames.length + "): ");
-        int destination = Integer.parseInt(scan.nextLine());
+
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+
         source--;
         destination--;
         G.dijkstras(source, destination);
@@ -305,6 +404,95 @@ public class AirlineSystemUndirected {
     public Iterable<WeightedUndirectedEdge> adj(int v) {
       return adj[v];
     }
+
+    public void addRoute() {
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("ADD A NEW ROUTE TO SCHEDULE");
+        for(int i=0; i<cityNames.length; i++){
+          System.out.println(i+1 + ": " + cityNames[i]);
+        }
+  
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+  
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+        System.out.println("Enter a distance");
+        int distance = Integer.parseInt(scan.nextLine());
+        System.out.println("Enter a price");
+        double price = Double.parseDouble(scan.nextLine());
+        for (int i = 0; i < G.v; i++) {
+        for (WeightedUndirectedEdge e : G.adj(i)) {
+          if (e.to() == destination) {
+            e.distance_weight(distance);
+            e.price_weight(price);
+            // Find and update reverse of the edge
+            for (WeightedUndirectedEdge e2 : G.adj(e.to())) {
+              if (e.to() == source) {
+                e2.distance_weight(distance);
+                e2.price_weight(price);
+              }
+            }
+          }
+        }
+      }
+        //
+        G.addEdge(new WeightedUndirectedEdge(source, destination, distance, price));
+        //adj[source].add(new WeightedDirectedEdge(source, destination, distance, price));
+        //adj[destination].add(new WeightedDirectedEdge(destination, source, distance, price));
+      }
+    }
+
+    private void trips() {
+      String costStr;
+      double highest_price;
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("\nAll Trips under Provided Price");
+        System.out.println("-----------------------------");
+    }
+    System.out.println("Enter the highest price you can pay!");
+    costStr = scan.nextLine();
+    highest_price = Double.parseDouble(costStr);
+    if(highest_price <= 0) {
+      System.out.println("That's way too small a number for input! Try again.");
+      costStr = scan.nextLine();
+      highest_price = Double.parseDouble(costStr);
+    }
+    System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
+    System.out.println("-----------------------------");
+
+    
+    /*
+    Stack<WeightedDirectedEdge> e = new Stack<>();
+      for (int V = 0; V < v; V++) {
+        marked = new boolean[v];
+        marked[V] = true;
+        trips(e, highest_price, V);
+      }
+      */
+  }
 
     public void bfs(int source) {
       marked = new boolean[this.v];
@@ -423,7 +611,53 @@ public class AirlineSystemUndirected {
       }
   }
 
-  
+  //Dijkstras for price
+  public void priceDijkstras(int source, int destination) {
+    marked = new boolean[this.v];
+    distTo = new int[this.v];
+    edgeTo = new int[this.v];
+
+
+    for (int i = 0; i < v; i++){
+      distTo[i] = INFINITY;
+      marked[i] = false;
+    }
+    distTo[source] = 0;
+    marked[source] = true;
+    int nMarked = 1;
+
+    int current = source;
+    while (nMarked < this.v) {
+      for (WeightedUndirectedEdge w : adj(current)) {
+        if (distTo[current]+w.price_weight() < distTo[w.to()]) {
+          edgeTo[w.to()] = current;
+          distTo[w.to()] = (int) (distTo[current] + w.price_weight);
+      
+        }
+      }
+      //Find the vertex with minimim path distance
+      //This can be done more effiently using a priority queue!
+      int min = INFINITY;
+      current = -1;
+
+      for(int i=0; i<distTo.length; i++){
+        if(marked[i])
+          continue;
+        if(distTo[i] < min){
+          min = distTo[i];
+          current = i;
+        }
+      }
+      if(current > 0) {
+          marked[current] = true;
+          nMarked++;
+      } else {
+        break;
+      }
+
+    }
+}
+
 
 
     public void dijkstras(int source, int destination) {
@@ -488,7 +722,7 @@ public class AirlineSystemUndirected {
     /**
     * Create a directed edge from v to w with given weight.
     */
-    public WeightedUndirectedEdge(int v, int w, int distance_weight) {
+    public WeightedUndirectedEdge(int v, int w, int distance_weight, double price_weight) {
       this.v = v;
       this.w = w;
       this.distance_weight = distance_weight;
@@ -503,10 +737,18 @@ public class AirlineSystemUndirected {
       return w;
     }
 
-    public int distance_weight(){
+    public int distance_weight(int distance_weight) {
+      return distance_weight;
+    }
+    // parameter-less
+    public int distance_weight() {
       return distance_weight;
     }
 
+    public double price_weight(double price_weight) {
+      return price_weight;
+    }
+    // parameter-less
     public double price_weight() {
       return price_weight;
     }
