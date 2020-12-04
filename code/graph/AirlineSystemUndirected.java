@@ -418,6 +418,7 @@ public class AirlineSystemUndirected {
   
         System.out.print("Please enter source city's name: ");
         String sourceStr = scan.nextLine();
+        if(sourceStr == null) return;
         // I used a hashmap to associate the cities with numbers
         // Not the most efficent thing but it gets the job done
         for(int i = 0; i < cityNames.length; i++) {
@@ -429,6 +430,7 @@ public class AirlineSystemUndirected {
   
         System.out.print("Please enter destination city's name: ");
         String destStr = scan.nextLine();
+        if(destStr == null) return;
         for(int i = 0; i < cityNames.length; i++) {
           if(cityNames[i].equalsIgnoreCase(destStr)) {
             locMap.put(destStr, i+1);
@@ -437,8 +439,11 @@ public class AirlineSystemUndirected {
         int destination = locMap.get(destStr);
         System.out.println("Enter a distance");
         int distance = Integer.parseInt(scan.nextLine());
+        if(distance < 0) return;
         System.out.println("Enter a price");
         double price = Double.parseDouble(scan.nextLine());
+        if(price < 0) return;
+        /*
         for (int i = 0; i < G.v; i++) {
         for (WeightedUndirectedEdge e : G.adj(i)) {
           if (e.to() == destination) {
@@ -454,8 +459,13 @@ public class AirlineSystemUndirected {
           }
         }
       }
+      */
+        //adj[source].add(new WeightedUndirectedEdge(source-1, destination-1, distance, price));
+        //adj[destination].add(new WeightedUndirectedEdge(destination-1, source-1, distance, price));
+
         //
-        G.addEdge(new WeightedUndirectedEdge(source, destination, distance, price));
+        G.addEdge(new WeightedUndirectedEdge(source-1, destination-1, distance, price));
+        G.addEdge(new WeightedUndirectedEdge(destination-1, source-1, distance, price));
         //adj[source].add(new WeightedDirectedEdge(source, destination, distance, price));
         //adj[destination].add(new WeightedDirectedEdge(destination, source, distance, price));
       }
