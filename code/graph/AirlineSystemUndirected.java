@@ -648,7 +648,7 @@ public class AirlineSystemUndirected {
           current = i;
         }
       }
-      if(current > 0) {
+      if(current >= 0) {
           marked[current] = true;
           nMarked++;
       } else {
@@ -699,7 +699,7 @@ public class AirlineSystemUndirected {
         }
 
 	//TODO: Update marked[] and nMarked. Check for disconnected graph.
-        if(current > 0) {
+        if(current >= 0) {
             marked[current] = true;
             nMarked++;
         } else {
