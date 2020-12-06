@@ -9,6 +9,7 @@ public class AirlineSystemUndirected {
   private String [] cityNames = null;
   private EdgeWeightedGraph G = null;
   private static Scanner scan = null;
+  private static File f;
   private static final int INFINITY = Integer.MAX_VALUE;
   private Map<String, Integer> locMap = new HashMap<>(); // HashMap for reading city inputs as names
                                                                 // Associates names with integer
@@ -40,13 +41,22 @@ public class AirlineSystemUndirected {
         case 6:
           airline.lowestPrice();
           break;
+        case 7:
+          airline.callTrips();
+          break;
         case 8:
           airline.printMST();
           break;
         case 9:
           airline.createRoute();
           break;
+        case 10:
+          airline.deleteRoute();
+          break;
         case 11:
+          airline.saveGraph(f);
+          break;
+        case 12:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -79,9 +89,10 @@ public class AirlineSystemUndirected {
         System.out.println("8. Compute Minimum Spanning Tree.");
         System.out.println("9. Add a route. ");
         System.out.println("10. Delete a route. ");
-        System.out.println("11. Exit.");
+        System.out.println("11. Save the file. ");
+        System.out.println("12. Exit.");
         System.out.println("*********************************");
-        System.out.print("Please choose a menu option (1-11): ");
+        System.out.print("Please choose a menu option (1-12): ");
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
   }
@@ -89,10 +100,10 @@ public class AirlineSystemUndirected {
   private void readGraph() throws IOException {
     System.out.println("Please enter graph filename:");
     String fileName = scan.nextLine();
+    f = new File(fileName);
     Scanner fileScan = new Scanner(new FileInputStream(fileName));
     int v = Integer.parseInt(fileScan.nextLine());
     G = new EdgeWeightedGraph(v);
-
     cityNames = new String[v];
     for(int i=0; i<v; i++){
       cityNames[i] = fileScan.nextLine();
@@ -134,6 +145,34 @@ public class AirlineSystemUndirected {
     }
   }
 
+  // Does not work correctly. Have an issue with saving because duplicates print as it is undirected graph
+  private void saveGraph(File f) {
+   try {
+        
+        PrintWriter pw = new PrintWriter(f);
+        
+        pw.print(G.v);
+        for(int i = 0; i < G.v; i++) {
+          pw.print("\n" + cityNames[i]);
+        }
+        for(int i = 0; i < G.v; i++) {
+          for(WeightedUndirectedEdge e : G.adj(i)) {
+            if(!cityNames[e.to()].equalsIgnoreCase(cityNames[i])) {
+              pw.format("\n%d %d %d %.2f", e.from()+1, e.to()+1, e.distance_weight(), e.price_weight());
+            }
+          }
+          System.out.println();
+        }
+        
+        pw.flush();
+        pw.close();
+  } catch (IOException e) {
+    System.out.println("CANNOT SAVE TO FILE.");
+    
+  }
+  System.out.println("FILE SAVED");
+  }
+
   //Simple method that prints out price of every flight
   private void printPrice() {
     if(G == null){
@@ -158,7 +197,13 @@ public class AirlineSystemUndirected {
     G.addRoute();
   }
 
-  
+  private void deleteRoute() {
+    G.removeRoute();
+  }
+
+  private void callTrips() {
+    G.trips();
+  }
   //Algorithm that prints Minimum Spanning Tree using Prim's algorithm
   private void printMST() {
     if(G == null){
@@ -395,6 +440,15 @@ public class AirlineSystemUndirected {
         e++;
     }
 
+    // Remove the edge e from undirected graph
+    public void removeEdge(WeightedUndirectedEdge edge) {
+        int v = edge.either();
+        int w = edge.other(v);
+        adj[v].remove(edge);
+        adj[w].remove(edge);
+        e--;
+    }
+
 
     /**
     * Return the edges leaving vertex v as an Iterable.
@@ -469,6 +523,78 @@ public class AirlineSystemUndirected {
         //adj[source].add(new WeightedDirectedEdge(source, destination, distance, price));
         //adj[destination].add(new WeightedDirectedEdge(destination, source, distance, price));
       }
+    }
+
+    public void removeRoute() {
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("REMOVE A ROUTE FROM THE SCHEDULE");
+        for(int i=0; i<cityNames.length; i++){
+          System.out.println(i+1 + ": " + cityNames[i]);
+        }
+  
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        if(sourceStr == null) return;
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
+          }
+        }
+        int source = locMap.get(sourceStr);
+  
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        if(destStr == null) return;
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+        Iterator<WeightedUndirectedEdge> edges = G.adj[v-1].iterator();
+        
+        WeightedUndirectedEdge edge = new WeightedUndirectedEdge(0, 0, 0, 0);
+        for (int i = 0; i < G.v; i++) {
+          for (WeightedUndirectedEdge e : G.adj(i)) {
+           
+              if(destStr.equalsIgnoreCase(cityNames[i]))
+              {
+                 edge = e;
+              } 
+             // if(destStr.equalsIgnoreCase(cityNames[i])) {
+                //adj[i].remove(e.to());
+                //adj[i].remove(i);
+                //return;
+             // }
+              //e.price_weight(price);
+              // Find and update reverse of the edge
+              /*
+              for (WeightedUndirectedEdge e2 : G.adj(e.to())) {
+                if (e.to() == source) {
+                  e2.distance_weight(distance);
+                  e2.price_weight(price);
+                }
+              }
+              
+            */
+          }
+        }
+        //Need this bc graph is undirected. (I, E) == (E, I)
+        //adj[].remove(edge);
+
+        G.removeEdge(edge);
+        //G.removeEdge(new WeightedUndirectedEdge(destination-1, source-1, edge.distance_weight, edge.price_weight));
+        
+        //G.removeEdge(new WeightedUndirectedEdge(source-1, destination-1, 0, 0));
+        //G.removeEdge(new WeightedUndirectedEdge(destination-1, source-1, 0, 0));
+      } 
+
     }
 
     private void trips() {
