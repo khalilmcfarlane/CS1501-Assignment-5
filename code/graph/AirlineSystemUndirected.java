@@ -677,7 +677,7 @@ public class AirlineSystemUndirected {
         marked[w.to()] = true;
         for (WeightedUndirectedEdge e : path) {
           if(!cityNames[e.to()].equalsIgnoreCase(cityNames[e.from()])) {
-        System.out.print("From " + cityNames[e.from()] + " to " + cityNames[vertex] + ": " + "$" + e.price_weight());
+        System.out.print("From " + cityNames[e.from()] + " to " + cityNames[e.to()] + ": " + "$" + e.price_weight());
           }
         }
 			    System.out.println();
