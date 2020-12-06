@@ -1,6 +1,7 @@
     /*************************************************************************
 *  An Airline management system that uses a weighted-edge directed graph 
 *  implemented using adjacency lists.
+*  Dependencies: IndexMinPQ.java
 *************************************************************************/
 import java.util.*;
 import java.io.*;
@@ -459,6 +460,21 @@ public class AirlineSystemUndirected {
       return adj[v];
     }
 
+    // is there a path between s and v?
+    public boolean hasPathTo(int v) {
+      return marked[v];
+    }
+
+    // return a path between s to v; null if no such path
+    public Iterable<Integer> pathTo(int vert) {
+      if (!hasPathTo(vert)) return null;
+      Stack<Integer> path = new Stack<Integer>();
+      for (int x = vert; x != v; x = edgeTo[x])
+          path.push(x);
+      path.push(v);
+      return path;
+    }
+
     public void addRoute() {
       if(G == null){
         System.out.println("Please import a graph first (option 1).");
@@ -600,6 +616,9 @@ public class AirlineSystemUndirected {
     private void trips() {
       String costStr;
       double highest_price;
+      marked = new boolean[this.v];
+      edgeTo = new int[this.v];
+      int count = 0;
       if(G == null){
         System.out.println("Please import a graph first (option 1).");
         System.out.print("Please press ENTER to continue ...");
@@ -607,7 +626,7 @@ public class AirlineSystemUndirected {
       } else {
         System.out.println("\nAll Trips under Provided Price");
         System.out.println("-----------------------------");
-    }
+    
     System.out.println("Enter the highest price you can pay!");
     costStr = scan.nextLine();
     highest_price = Double.parseDouble(costStr);
@@ -616,10 +635,63 @@ public class AirlineSystemUndirected {
       costStr = scan.nextLine();
       highest_price = Double.parseDouble(costStr);
     }
-    System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
+    System.out.println("SEARCHING FOR ALL PRICES UNDER " + highest_price);
     System.out.println("-----------------------------");
+    for(int i = 0; i < G.v;i++) {
+      marked[i] = true;
+      G.dfs(0, i, highest_price);
+    }
+      
 
+    }
     
+  }
+  
+  // Need DFS for all trips under amount calculation
+  // Algorithm provided via DepthFirstPaths.java given in source code
+  public void dfs(double total, int vertex, double cost) {
+    /*
+    Stack<Double> path = new Stack<>();
+      for(int i = 0; i < G.v; i++) {
+        for(WeightedUndirectedEdge e : G.adj(i)) {
+          path.push(e.price_weight);
+        }
+      }
+      //path.push(source);
+      System.out.print("the shortest route from " + cityNames[source] + " " + "to" + " " + cityNames[destination] + " has " + G.distTo[destination] + " " +  "hop(s)" + ": ");
+      while(!path.empty()) {
+        System.out.print(cityNames[path.pop()] + " "); 
+      }
+      System.out.println();
+      */
+    Stack<WeightedUndirectedEdge> path = new Stack<>();
+    Stack<Double> money_path = new Stack<>();
+    
+    //int total = 0;
+    for (WeightedUndirectedEdge w : G.adj(vertex)) {
+        path.push(w);
+        if(total + w.price_weight() > cost || marked[w.to()] == true) {
+          path.pop();
+          continue;
+        }
+        marked[w.to()] = true;
+        for (WeightedUndirectedEdge e : path) {
+          if(!cityNames[e.to()].equalsIgnoreCase(cityNames[e.from()])) {
+        System.out.print("From " + cityNames[e.from()] + " to " + cityNames[vertex] + ": " + "$" + e.price_weight());
+          }
+        }
+			    System.out.println();
+        /*
+        if (!marked[w.to()]) {
+            edgeTo[w.to()] = v;
+            dfs(source);
+        }
+        */
+        dfs(total + w.price_weight(), w.to(), cost);
+        marked[w.to()] = false;
+        path.pop();
+    }
+  }
     /*
     Stack<WeightedDirectedEdge> e = new Stack<>();
       for (int V = 0; V < v; V++) {
@@ -628,7 +700,6 @@ public class AirlineSystemUndirected {
         trips(e, highest_price, V);
       }
       */
-  }
 
     public void bfs(int source) {
       marked = new boolean[this.v];
