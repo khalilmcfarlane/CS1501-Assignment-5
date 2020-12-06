@@ -581,7 +581,7 @@ public class AirlineSystem {
   // Algorithm provided via DepthFirstPaths.java given in source code
   public void dfs(double total, int vertex, double cost) {
     Stack<WeightedUndirectedEdge> path = new Stack<>();
-    Stack<Double> money_path = new Stack<>();
+    Stack<Double> money_path = new Stack<>(); //Ignore (Initial attempt)
     
     for (WeightedUndirectedEdge w : G.adj(vertex)) {
         path.push(w);
