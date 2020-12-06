@@ -1,6 +1,7 @@
-/*************************************************************************
+    /*************************************************************************
 *  An Airline management system that uses a weighted-edge directed graph 
 *  implemented using adjacency lists.
+*  Dependencies: IndexMinPQ.java
 *************************************************************************/
 import java.util.*;
 import java.io.*;
@@ -9,9 +10,11 @@ public class AirlineSystemDirected {
   private String [] cityNames = null;
   private Digraph G = null;
   private static Scanner scan = null;
+  private static File f;
   private static final int INFINITY = Integer.MAX_VALUE;
   private Map<String, Integer> locMap = new HashMap<>(); // HashMap for reading city inputs as names
                                                                 // Associates names with integer
+
 
   /**
   * Test client.
@@ -39,13 +42,22 @@ public class AirlineSystemDirected {
         case 6:
           airline.lowestPrice();
           break;
+        case 7:
+          airline.callTrips();
+          break;
         case 8:
           airline.printMST();
           break;
         case 9:
           airline.createRoute();
           break;
+        case 10:
+          airline.deleteRoute();
+          break;
         case 11:
+          airline.saveGraph(f);
+          break;
+        case 12:
           scan.close();
           System.out.println("EXITING PROGRAM");
           System.exit(0);
@@ -57,31 +69,22 @@ public class AirlineSystemDirected {
   }
 
   private int menu(){
-    /*
-    System.out.printf("\n0====================================0\n"
-				+ "|   FifteenO'One                     |\n"
-				+ "|               Airlines   __        |\n"
-				+ "|                __________/ F       |\n"
-				+ "|              c'____---__=_/        |\n"
-				+ "|________________o_____o_____________|\n"
-        + "0====================================0\n\n");
-        */
-    System.out.println("*********************************");
-    System.out.println("Welcome to FifteenO'One Airlines!");
-    System.out.println("1. Read data from a file.");
-    System.out.println("2. Display all routes.");
-    System.out.println("3. Display all prices.");
-    System.out.println("4. Compute shortest path based on number of hops.");
-    System.out.println("5. Compute shortest path based on distance.");
-    System.out.println("6. Compute shortest path based on price.");
-    System.out.println("7. Compute all trips less than or equal to given price.");
-    System.out.println("8. Compute Minimum Spanning Tree.");
-    System.out.println("9. Add a route. ");
-    System.out.println("10. Delete a route. ");
-    System.out.println("11. Exit.");
-    System.out.println("*********************************");
-    System.out.print("Please choose a menu option (1-11): ");
-
+        System.out.println("*********************************");
+        System.out.println("Welcome to FifteenO'One Airlines!");
+        System.out.println("1. Read data from a file.");
+        System.out.println("2. Display all routes.");
+        System.out.println("3. Display all prices.");
+        System.out.println("4. Compute shortest path based on number of hops.");
+        System.out.println("5. Compute shortest path based on distance.");
+        System.out.println("6. Compute shortest path based on price.");
+        System.out.println("7. Compute all trips less than or equal to given price.");
+        System.out.println("8. Compute Minimum Spanning Tree.");
+        System.out.println("9. Add a route. ");
+        System.out.println("10. Delete a route. ");
+        System.out.println("11. Save the file. ");
+        System.out.println("12. Exit.");
+        System.out.println("*********************************");
+        System.out.print("Please choose a menu option (1-12): ");
     int choice = Integer.parseInt(scan.nextLine());
     return choice;
   }
@@ -89,23 +92,22 @@ public class AirlineSystemDirected {
   private void readGraph() throws IOException {
     System.out.println("Please enter graph filename:");
     String fileName = scan.nextLine();
+    f = new File(fileName);
     Scanner fileScan = new Scanner(new FileInputStream(fileName));
     int v = Integer.parseInt(fileScan.nextLine());
     G = new Digraph(v);
-
     cityNames = new String[v];
     for(int i=0; i<v; i++){
       cityNames[i] = fileScan.nextLine();
-      //locMap.put(" ", i+1);
     }
 
-    while(fileScan.hasNextLine()){
+    while(fileScan.hasNext()){
       int from = fileScan.nextInt();
       int to = fileScan.nextInt();
       int distance_weight = fileScan.nextInt();
       double price_weight = fileScan.nextDouble();
       G.addEdge(new WeightedDirectedEdge(from-1, to-1, distance_weight, price_weight));
-      //fileScan.nextLine();
+      //G.addEdge(new WeightedDirectedEdge(to-1, from-1, distance_weight, price_weight));
       }
     fileScan.close();
     System.out.println("Data imported successfully.");
@@ -122,7 +124,9 @@ public class AirlineSystemDirected {
       for (int i = 0; i < G.v; i++) {
         System.out.print(cityNames[i] + ": ");
         for (WeightedDirectedEdge e : G.adj(i)) {
-          System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") " + "Price: $" + e.price_weight() + " ");
+          if(!cityNames[e.to()].equalsIgnoreCase(cityNames[i])) {
+            System.out.print(cityNames[e.to()] + "(" + e.distance_weight() + ") " + "Price: $" + e.price_weight() + " ");
+          }
         }
         System.out.println();
       }
@@ -130,6 +134,34 @@ public class AirlineSystemDirected {
       scan.nextLine();
 
     }
+  }
+
+  // Does not work correctly. Have an issue with saving because duplicates print as it is undirected graph
+  private void saveGraph(File f) {
+   try {
+        
+        PrintWriter pw = new PrintWriter(f);
+        
+        pw.print(G.v);
+        for(int i = 0; i < G.v; i++) {
+          pw.print("\n" + cityNames[i]);
+        }
+        for(int i = 0; i < G.v; i++) {
+          for(WeightedDirectedEdge e : G.adj(i)) {
+            if(!cityNames[e.to()].equalsIgnoreCase(cityNames[i])) {
+              pw.format("\n%d %d %d %.2f", e.from()+1, e.to()+1, e.distance_weight(), e.price_weight());
+            }
+          }
+          System.out.println();
+        }
+        
+        pw.flush();
+        pw.close();
+  } catch (IOException e) {
+    System.out.println("CANNOT SAVE TO FILE.");
+    
+  }
+  System.out.println("FILE SAVED");
   }
 
   //Simple method that prints out price of every flight
@@ -148,7 +180,6 @@ public class AirlineSystemDirected {
       }
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
-
     }
   }
 
@@ -157,7 +188,13 @@ public class AirlineSystemDirected {
     G.addRoute();
   }
 
-  
+  private void deleteRoute() {
+    G.removeRoute();
+  }
+
+  private void callTrips() {
+    G.trips();
+  }
   //Algorithm that prints Minimum Spanning Tree using Prim's algorithm
   private void printMST() {
     if(G == null){
@@ -168,18 +205,16 @@ public class AirlineSystemDirected {
       System.out.println("\nMINIMUM SPANNING TREE");
       System.out.println("-----------------------------");
       System.out.print("The edges in the MST based on distance are as followed:\n");
-      //Digraph Gg  = G.PrimMST();
       G.PrimMST();
       System.out.print("Please press ENTER to continue ...");
       scan.nextLine();
-        //G.PrimMST(source);
       }
 
     }
   
-  // Compute all trips less than or equal to given amount
-  
-  // lowestPrice() method that computes path with lowest price using dijkstras algo
+
+
+  // lowestPrice() method that computes path with lowest price
   private void lowestPrice() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -188,7 +223,7 @@ public class AirlineSystemDirected {
     } else {
       System.out.println("\nLowest Price Cost");
       System.out.println("-----------------------------");
-      //double price = 0.0;
+
       for(int i=0; i<cityNames.length; i++){
         System.out.println(i+1 + ": " + cityNames[i]);
       }
@@ -238,6 +273,7 @@ public class AirlineSystemDirected {
     }
   }
 }
+
   private void shortestHops() {
     if(G == null){
       System.out.println("Please import a graph first (option 1).");
@@ -351,10 +387,8 @@ public class AirlineSystemDirected {
       }
   }
 
-  
-
   /**
-  *  The <tt>Digraph</tt> class represents an directed graph of vertices
+  *  The <tt>Digraph</tt> class represents an undirected graph of vertices
   *  named 0 through v-1. It supports the following operations: add an edge to
   *  the graph, iterate over all of edges leaving a vertex.Self-loops are
   *  permitted.
@@ -385,12 +419,23 @@ public class AirlineSystemDirected {
     }
 
     /**
-    * Add the edge e to this digraph.
+    * Add the edge e to this digraph. Adapted for undirected graph
     */
     public void addEdge(WeightedDirectedEdge edge) {
-      int from = edge.from();
-      adj[from].add(edge);
-      e++;
+        int v = edge.either();
+        int w = edge.other(v);
+        adj[v].add(edge);
+        //adj[w].add(edge);
+        e++;
+    }
+
+    // Remove the edge e from undirected graph
+    public void removeEdge(WeightedDirectedEdge edge) {
+        int v = edge.either();
+        int w = edge.other(v);
+        adj[v].remove(edge);
+        //adj[w].remove(edge);
+        e--;
     }
 
 
@@ -441,33 +486,68 @@ public class AirlineSystemDirected {
         System.out.println("Enter a price");
         double price = Double.parseDouble(scan.nextLine());
         if(price < 0) return;
-        /*
-        for (int i = 0; i < G.v; i++) {
-        for (WeightedDirectedEdge e : G.adj(i)) {
-          if (e.to() == destination) {
-            e.distance_weight(distance);
-            e.price_weight(price);
-            // Find and update reverse of the edge
-            for (WeightedDirectedEdge e2 : G.adj(e.to())) {
-              if (e.to() == source) {
-                e2.distance_weight(distance);
-                e2.price_weight(price);
-              }
-            }
+       
+        G.addEdge(new WeightedDirectedEdge(source-1, destination-1, distance, price));
+      }
+    }
+
+    public void removeRoute() {
+      if(G == null){
+        System.out.println("Please import a graph first (option 1).");
+        System.out.print("Please press ENTER to continue ...");
+        scan.nextLine();
+      } else {
+        System.out.println("REMOVE A ROUTE FROM THE SCHEDULE");
+        for(int i=0; i<cityNames.length; i++){
+          System.out.println(i+1 + ": " + cityNames[i]);
+        }
+  
+        System.out.print("Please enter source city's name: ");
+        String sourceStr = scan.nextLine();
+        if(sourceStr == null) return;
+        // I used a hashmap to associate the cities with numbers
+        // Not the most efficent thing but it gets the job done
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(sourceStr)) {
+            locMap.put(sourceStr, i+1);
           }
         }
-      }
-      */
-        //
-        G.addEdge(new WeightedDirectedEdge(source-1, destination-1, distance, price));
-        //adj[source].add(new WeightedDirectedEdge(source, destination, distance, price));
-        //adj[destination].add(new WeightedDirectedEdge(destination, source, distance, price));
-      }
+        int source = locMap.get(sourceStr);
+  
+        System.out.print("Please enter destination city's name: ");
+        String destStr = scan.nextLine();
+        if(destStr == null) return;
+        for(int i = 0; i < cityNames.length; i++) {
+          if(cityNames[i].equalsIgnoreCase(destStr)) {
+            locMap.put(destStr, i+1);
+          }
+        }
+        int destination = locMap.get(destStr);
+        Iterator<WeightedDirectedEdge> edges = G.adj[v-1].iterator();
+        
+        WeightedDirectedEdge edge = new WeightedDirectedEdge(0, 0, 0, 0);
+        for (int i = 0; i < G.v; i++) {
+          for (WeightedDirectedEdge e : G.adj(i)) {
+           
+              if(destStr.equalsIgnoreCase(cityNames[i]))
+              {
+                 edge = e;
+              } 
+          }
+        }
+        //Need this bc graph is undirected. (I, E) == (E, I)
+
+        G.removeEdge(edge);
+      } 
+
     }
 
     private void trips() {
       String costStr;
       double highest_price;
+      marked = new boolean[this.v];
+      edgeTo = new int[this.v];
+      int count = 0;
       if(G == null){
         System.out.println("Please import a graph first (option 1).");
         System.out.print("Please press ENTER to continue ...");
@@ -475,7 +555,7 @@ public class AirlineSystemDirected {
       } else {
         System.out.println("\nAll Trips under Provided Price");
         System.out.println("-----------------------------");
-    }
+    
     System.out.println("Enter the highest price you can pay!");
     costStr = scan.nextLine();
     highest_price = Double.parseDouble(costStr);
@@ -484,44 +564,43 @@ public class AirlineSystemDirected {
       costStr = scan.nextLine();
       highest_price = Double.parseDouble(costStr);
     }
-    System.out.println("SEARCHING FOR ALL PRICES UNDER" + highest_price);
+    System.out.println("SEARCHING FOR ALL PRICES UNDER " + highest_price);
     System.out.println("-----------------------------");
+    for(int i = 0; i < G.v;i++) {
+      marked[i] = true;
+      G.dfs(0, i, highest_price);
+    }
+      
 
+    }
     
-    /*
-    Stack<WeightedDirectedEdge> e = new Stack<>();
-      for (int V = 0; V < v; V++) {
-        marked = new boolean[v];
-        marked[V] = true;
-        trips(e, highest_price, V);
-      }
-      */
   }
-  /*
-  private void trips(Stack<WeightedDirectedEdge> e, int highest_price, int V) {
-    for (WeightedDirectedEdge s : adj[v]) {
-			// Push node onto Stack
-			e.push(s);
-
-			// Check for exceeding limit or formation of cycle
-			if (s.price_weight() > highest_price) {
-				e.pop();
-				continue;
-			}
-			//marked[e.w()] = true;
-			System.out.printf("\nCost: %d Path (reversed): ",  s.price_weight());
-			System.out.printf("%s ", cityNames[e]);
-			for (EdgeNode n : s)
-				System.out.printf("%d %s ", n.price(), citiesNum.get(n.v()));
-			System.out.println();
-
-			costSearch(s, limit, total + e.price(), e.w());
-
-			marked[e.w()] = false;
-			s.pop();
-		}
+  
+  // Need DFS for all trips under amount calculation
+  // Algorithm provided via DepthFirstPaths.java given in source code
+  public void dfs(double total, int vertex, double cost) {
+    Stack<WeightedDirectedEdge> path = new Stack<>();
+    Stack<Double> money_path = new Stack<>();
+    
+    for (WeightedDirectedEdge w : G.adj(vertex)) {
+        path.push(w);
+        if(total + w.price_weight() > cost || marked[w.to()] == true) {
+          path.pop();
+          continue;
+        }
+        marked[w.to()] = true;
+        for (WeightedDirectedEdge e : path) {
+          if(!cityNames[e.to()].equalsIgnoreCase(cityNames[e.from()])) {
+        System.out.print("From " + cityNames[e.from()] + " to " + cityNames[e.to()] + ": " + "$" + e.price_weight());
+          }
+        }
+			    System.out.println();
+        dfs(total + w.price_weight(), w.to(), cost);
+        marked[w.to()] = false;
+        path.pop();
+    }
   }
-  */
+
     public void bfs(int source) {
       marked = new boolean[this.v];
       distTo = new int[this.e];
@@ -559,8 +638,7 @@ public class AirlineSystemDirected {
         distTo[vert] = INFINITY;
         marked[vert] = false;
       }
-      //distTo[source] = 0;
-      //marked[source] = true;
+     
       int nMarked = 1;
 
         for (int vert = 0; vert < this.v; vert++) {     // run from each vertex to find
@@ -569,8 +647,8 @@ public class AirlineSystemDirected {
               distTo[vert] = 0;
               pq.insert(vert, distTo[vert]);
               while(!pq.isEmpty()) {
-                int V = pq.delMin();
-                scan(V);
+                visit(G, pq.delMin());
+              
               }
 
               // Check for disconnected graph
@@ -582,16 +660,36 @@ public class AirlineSystemDirected {
             }
           } 
         }
-
-        for (int i = 0; i < G.v; i++) {
+        for (int i = 1; i < G.v; i++) {
         for(WeightedDirectedEdge e : G.adj(i)) {
             System.out.printf("%s,%s : %d\n", cityNames[e.from()], cityNames[e.to()],
                 e.distance_weight());
+               break;
         }
-        //System.out.println();
       }
     }
 
+    //Prim's find algorithm from given source code
+    private void visit(Digraph G, int v) {
+      marked[v] = true;
+      for(WeightedDirectedEdge e : G.adj(v)) {
+        int w = e.other(v);
+        if(marked[w]) continue;
+        if(e.distance_weight() < distTo[w]) {
+          edgeTo[w] = e.v;
+          distTo[w] = e.distance_weight();
+          if (pq.contains(w)) 
+          {
+              pq.change(w, distTo[w]);
+          }
+          else              
+          {
+              pq.insert(w, distTo[w]);
+          }
+        }
+      }
+
+    }
     private void scan(int v) {
       marked[v] = true;
       int current = v;
@@ -618,51 +716,51 @@ public class AirlineSystemDirected {
   }
 
   //Dijkstras for price
-    public void priceDijkstras(int source, int destination) {
-      marked = new boolean[this.v];
-      distTo = new int[this.v];
-      edgeTo = new int[this.v];
+  public void priceDijkstras(int source, int destination) {
+    marked = new boolean[this.v];
+    distTo = new int[this.v];
+    edgeTo = new int[this.v];
 
 
-      for (int i = 0; i < v; i++){
-        distTo[i] = INFINITY;
-        marked[i] = false;
+    for (int i = 0; i < v; i++){
+      distTo[i] = INFINITY;
+      marked[i] = false;
+    }
+    distTo[source] = 0;
+    marked[source] = true;
+    int nMarked = 1;
+
+    int current = source;
+    while (nMarked < this.v) {
+      for (WeightedDirectedEdge w : adj(current)) {
+        if (distTo[current]+w.price_weight() < distTo[w.to()]) {
+          edgeTo[w.to()] = current;
+          distTo[w.to()] = (int) (distTo[current] + w.price_weight);
+      
+        }
       }
-      distTo[source] = 0;
-      marked[source] = true;
-      int nMarked = 1;
+      //Find the vertex with minimim path distance
+      //This can be done more effiently using a priority queue!
+      int min = INFINITY;
+      current = -1;
 
-      int current = source;
-      while (nMarked < this.v) {
-        for (WeightedDirectedEdge w : adj(current)) {
-          if (distTo[current]+w.price_weight() < distTo[w.to()]) {
-            edgeTo[w.to()] = current;
-            distTo[w.to()] = (int) (distTo[current] + w.price_weight);
-	      
-          }
+      for(int i=0; i<distTo.length; i++){
+        if(marked[i])
+          continue;
+        if(distTo[i] < min){
+          min = distTo[i];
+          current = i;
         }
-        //Find the vertex with minimim path distance
-        //This can be done more effiently using a priority queue!
-        int min = INFINITY;
-        current = -1;
-
-        for(int i=0; i<distTo.length; i++){
-          if(marked[i])
-            continue;
-          if(distTo[i] < min){
-            min = distTo[i];
-            current = i;
-          }
-        }
-        if(current >= 0) {
-            marked[current] = true;
-            nMarked++;
-        } else {
-          break;
-        }
-
       }
-  }
+      if(current >= 0) {
+          marked[current] = true;
+          nMarked++;
+      } else {
+        break;
+      }
+
+    }
+}
 
     public void dijkstras(int source, int destination) {
       marked = new boolean[this.v];
@@ -682,7 +780,6 @@ public class AirlineSystemDirected {
       while (nMarked < this.v) {
         for (WeightedDirectedEdge w : adj(current)) {
           if (distTo[current]+w.distance_weight() < distTo[w.to()]) {
-	      //TODO:update edgeTo and distTo
             edgeTo[w.to()] = current;
             distTo[w.to()] = distTo[current] + w.distance_weight;
 	      
@@ -702,7 +799,6 @@ public class AirlineSystemDirected {
           }
         }
 
-	//TODO: Update marked[] and nMarked. Check for disconnected graph.
         if(current >= 0) {
             marked[current] = true;
             nMarked++;
@@ -718,7 +814,7 @@ public class AirlineSystemDirected {
   *  The <tt>WeightedDirectedEdge</tt> class represents a weighted edge in an directed graph.
   */
 
-  private class WeightedDirectedEdge {
+  private class WeightedDirectedEdge implements Comparable<WeightedDirectedEdge> {
     private final int v;
     private final int w;
     private int distance_weight;
@@ -762,5 +858,23 @@ public class AirlineSystemDirected {
       else if (vertex == w) return v;
       else throw new RuntimeException("Illegal endpoint");
   }
+  /**
+     * Return either endpoint of this edge.
+     * Taken from Edge.java, which is provided in source code
+     */
+    public int either() {
+        return v;
+    }
+
+  /**
+     * Compare edges by weight. Adapted for AirlineSystem
+     */
+    public int compareTo(WeightedDirectedEdge that) {
+      if      (this.distance_weight() < that.distance_weight()) return -1;
+      else if (this.distance_weight() > that.distance_weight()) return +1;
+      else                                    return  0;
+  }
+
   }
 }
+
